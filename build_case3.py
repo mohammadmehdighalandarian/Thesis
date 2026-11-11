@@ -14,6 +14,7 @@ deficit = bound - longest.
 Output: dataset/case3_s_fixed_t_fixed.csv
 
 Usage: python3 build_case3.py [max_cells] [seconds_per_pair]   (defaults 45, 5)
+The output is written after every graph; running again resumes where it stopped.
 """
 import csv
 import os
@@ -88,19 +89,29 @@ def solve_graph(row):
 def main():
     graphs = [r for r in csv.DictReader(open(CASE1)) if int(r["n_cells"]) <= MAX_CELLS]
     graphs.sort(key=lambda r: int(r["n_cells"]))
-    all_rows = []
+    # resume: keep graphs already written to OUT, append the rest one by one
+    done = set()
+    if os.path.exists(OUT):
+        done = {r["id"] for r in csv.DictReader(open(OUT))}
+    todo = [g for g in graphs if g["id"] not in done]
+    print(f"{len(done)} graphs already in {OUT}, {len(todo)} to go", flush=True)
+    new_file = not os.path.exists(OUT)
     t0 = time.time()
-    with Pool(os.cpu_count()) as pool:
-        for i, rows in enumerate(pool.imap(solve_graph, graphs)):
-            all_rows.extend(rows)
+    with open(OUT, "a", newline="") as f, Pool(os.cpu_count()) as pool:
+        wr = None
+        for i, rows in enumerate(pool.imap(solve_graph, todo)):
+            if wr is None:
+                wr = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+                if new_file:
+                    wr.writeheader()
+            wr.writerows(rows)
+            f.flush()
             to = sum(r["status"] == "timeout" for r in rows)
-            print(f"[{i + 1}/{len(graphs)}] {rows[0]['id']:20s} n={rows[0]['n_cells']:3d} "
+            print(f"[{len(done) + i + 1}/{len(graphs)}] {rows[0]['id']:20s} n={rows[0]['n_cells']:3d} "
                   f"pairs={len(rows)} timeouts={to} elapsed={time.time() - t0:.0f}s", flush=True)
-    with open(OUT, "w", newline="") as f:
-        wr = csv.DictWriter(f, fieldnames=list(all_rows[0].keys()))
-        wr.writeheader()
-        wr.writerows(all_rows)
-    print("rows", len(all_rows), "timeouts", sum(r["status"] == "timeout" for r in all_rows))
+    rows = list(csv.DictReader(open(OUT)))
+    print("rows", len(rows), "graphs", len({r["id"] for r in rows}),
+          "timeouts", sum(r["status"] == "timeout" for r in rows))
 
 
 if __name__ == "__main__":

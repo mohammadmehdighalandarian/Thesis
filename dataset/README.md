@@ -81,7 +81,7 @@ Case 2 and case 3 tables are being built; numbers will be added here.
 python3 verify_case1.py && python3 verify_case2.py && python3 verify_case3.py
 python3 build_case1.py 60          # case 1, 60 s per graph
 python3 build_case2.py 60 30       # case 2, all graphs, 30 s per start cell
-python3 build_case3.py 45 5        # case 3, graphs up to 45 vertices, 5 s per pair
+python3 build_case3.py 45 3        # case 3, graphs up to 45 vertices, 3 s per pair (resumable)
 python3 make_excel.py              # dataset.xlsx
 ```
 
