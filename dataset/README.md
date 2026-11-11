@@ -73,7 +73,14 @@ Every stored path was also re-checked to be a simple path inside its T.
 
 ## Summary of v0.2
 
-Case 2 and case 3 tables are being built; numbers will be added here.
+| Case | Graphs | Rows | Exact | Timeouts | Below the bound | Path covers all vertices |
+|---|---|---|---|---|---|---|
+| 1 | 475 (5 to 57 vertices) | 475 | 473 | 2 | 78 | 395 |
+| 2 | 475 (5 to 57 vertices) | 12,275 | 12,236 | 39 | 2,637 | 4,647 |
+| 3 | 449 (5 to 45 vertices) | 150,794 | 150,074 | 720 | 58,805 | 20,489 |
+
+Time limits: case 1, 60 s per graph; case 2, 30 s per start cell; case 3, 3 s per pair.
+Case 3 stops at 45 vertices because the number of pairs grows with the square of the size.
 
 ## Reproduce
 
