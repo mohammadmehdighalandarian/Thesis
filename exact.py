@@ -107,6 +107,87 @@ class Solver:
         return self.best_len, [self.cells[i] for i in self.best_path]
 
 
+class SolverST(Solver):
+    """Case 3: longest path that starts at s and ends at t (both fixed)."""
+
+    def _st_bound(self, cur, visited, t):
+        """Upper bound on a path from cur to t that uses only unvisited cells.
+        Returns -1 if t is no longer reachable from cur."""
+        same = 1
+        other = 0
+        stack = [cur]
+        seen = visited | (1 << cur)
+        cur_black = self.black[cur]
+        reach_t = (cur == t)
+        while stack:
+            v = stack.pop()
+            for u in self.adj[v]:
+                if not (seen >> u) & 1:
+                    seen |= 1 << u
+                    stack.append(u)
+                    if u == t:
+                        reach_t = True
+                    if self.black[u] == cur_black:
+                        same += 1
+                    else:
+                        other += 1
+        if not reach_t:
+            return -1
+        if self.black[t] == cur_black:
+            # path c,o,c,...,c: k+1 cells of colour c and k of the other
+            return 2 * min(same - 1, other) + 1
+        # path c,o,...,o: k cells of each colour
+        return 2 * min(same, other)
+
+    def _dfs_st(self, cur, visited, length, path, t, target):
+        self.nodes += 1
+        if self.time_limit and (self.nodes & 4095) == 0:
+            if time.perf_counter() - self.t0 > self.time_limit:
+                raise Timeout
+        if cur == t:
+            if length > self.best_len:
+                self.best_len = length
+                self.best_path = list(path)
+            return self.best_len >= target
+        b = self._st_bound(cur, visited, t)
+        if b < 0 or length - 1 + b <= self.best_len:
+            return False
+        for u in self.adj[cur]:
+            if not (visited >> u) & 1:
+                path.append(u)
+                if self._dfs_st(u, visited | (1 << u), length + 1, path, t, target):
+                    return True
+                path.pop()
+        return False
+
+    def longest_st(self, s_cell, t_cell):
+        """Longest s-t path. Returns (length, path_cells, bound)."""
+        self.t0 = time.perf_counter()
+        self.best_len, self.best_path = 0, []
+        s, t = self.index[s_cell], self.index[t_cell]
+        target = self._st_bound(s, 0, t)
+        self._dfs_st(s, 1 << s, 1, [s], t, target)
+        return self.best_len, [self.cells[i] for i in self.best_path], target
+
+
+def brute_force_st(W, H1, w, H2, left, s_cell, t_cell):
+    """Plain exhaustive s-t search with no pruning. Only for tiny graphs."""
+    cells, index, adj = build(W, H1, w, H2, left)
+    s, t = index[s_cell], index[t_cell]
+    best = [0]
+
+    def go(cur, visited, length):
+        if cur == t:
+            best[0] = max(best[0], length)
+            return
+        for u in adj[cur]:
+            if not (visited >> u) & 1:
+                go(u, visited | (1 << u), length + 1)
+
+    go(s, 1 << s, 1)
+    return best[0]
+
+
 def brute_force_free(W, H1, w, H2, left):
     """Plain exhaustive search with no pruning. Only for tiny graphs."""
     cells, _, adj = build(W, H1, w, H2, left)
