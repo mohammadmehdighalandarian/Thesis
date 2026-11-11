@@ -1,4 +1,4 @@
-"""Draw T graphs and their longest paths from the dataset.
+"""Draw T graphs and their case-1 longest paths (s free, t free).
 
 Usage:
   python3 plot.py                     overview figure -> dataset/overview.png
@@ -16,9 +16,9 @@ import matplotlib.pyplot as plt
 
 from tgraph import t_cells, is_black
 
-ROWS = {r["id"]: r for r in csv.DictReader(open("dataset/instances.csv"))}
+ROWS = {r["id"]: r for r in csv.DictReader(open("dataset/case1_s_free_t_free.csv"))}
 PATHS = {}
-for line in open("dataset/paths.jsonl"):
+for line in open("dataset/case1_s_free_t_free_paths.jsonl"):
     d = json.loads(line)
     PATHS[d["id"]] = d
 
@@ -71,10 +71,14 @@ def overview():
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         overview()
-    elif sys.argv[1] == "--all":
+    elif sys.argv[1] in ("--all", "all", "-all"):
         for iid in ROWS:
             one(iid)
         print(f"wrote {len(ROWS)} figures to figures/")
     else:
         for iid in sys.argv[1:]:
+            if iid not in ROWS:
+                print(f"'{iid}' is not a graph id. Use an id from dataset/case1_s_free_t_free.csv, "
+                      "for example T_7_3_3_4_2, or 'all' to draw every graph.")
+                continue
             print("wrote", one(iid))
