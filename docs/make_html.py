@@ -106,7 +106,7 @@ pd_long = longest_path(*pd)
 pe = (7, 3, 1, 4, 3)
 pe_a = [(r, 3) for r in range(6, 2, -1)] + [(2, 3), (1, 3), (0, 3), (0, 2), (1, 2), (2, 2), (2, 1), (1, 1), (0, 1), (0, 0), (1, 0), (2, 0)]
 S.append(f"""
-<section id="def"><h2>۰. حالت ۱ یعنی چی؟</h2>
+<section id="def"><h2>تعریف حالت ۱</h2>
 <p>یه گراف T داریم. می‌خوایم توش یه <b>مسیر</b> پیدا کنیم که تا جای ممکن طولانی باشه.</p>
 <p><b>مسیر</b> یعنی:</p>
 <ul>
@@ -182,7 +182,7 @@ S.append(f'''
 
 # ---------- rule table ----------
 S.append(f'''
-<section id="rules"><h2>۴. قانون کامل حالت ۱</h2>
+<section id="rules"><h2>قانون کامل حالت ۱</h2>
 <p>قانون‌ها رو به همین ترتیب چک کن. اولین قانونی که شرطش برقرار بود، جواب رو میده.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>قانون</th><th>شرط</th><th>طول بلندترین مسیر</th></tr></thead>
@@ -278,7 +278,7 @@ S.append(f'''
 
 # ---------- tests ----------
 S.append(f'''
-<section id="tests"><h2>۵. از کجا مطمئنیم درسته؟</h2>
+<section id="tests"><h2>از کجا مطمئنیم قانون‌های حالت ۱ درستن؟</h2>
 <div class="tablewrap"><table><thead><tr><th>تست</th><th>تعداد</th><th>نتیجه</th></tr></thead><tbody>
 <tr><td>مقایسه با جواب الگوریتم دقیق (جستجوی کامل) روی دیتاست</td><td>۴۷۵ گراف</td><td>همه برابر</td></tr>
 <tr><td>گراف‌های بزرگ‌تر ({ltr("W ≤ 20")}، {ltr("H1 ≤ 9")}، {ltr("H2 ≤ 11")}): مسیر معتبره و طولش با قانون یکیه</td><td>۴۴٬۹۸۵ گراف</td><td>بدون خطا</td></tr>
@@ -288,6 +288,46 @@ S.append(f'''
 <p class="note">قانون از روی داده‌ها پیدا شده. ساخت مسیر نشون میده جواب حداقل این‌قدره، و استدلال‌های قانون ۱ تا ۳ نشون میدن بیشتر از این نمیشه. اثبات کامل هنوز باید نوشته و بررسی بشه.</p>
 <p class="note">کد: {ltr("construct.py")} (الگوریتم)، {ltr("verify_construct.py")} (تست‌ها)، شاخه {ltr("linear-algorithm")} در گیت‌هاب.</p>
 </section>''')
+
+
+# ---------- cases 2 and 3 (to be completed) ----------
+from exact import Solver, SolverST
+pd = (3, 1, 1, 2, 1)
+s2 = (0, 0)
+L2, path2 = Solver(*pd).longest_from(s2)
+t3 = (0, 2)
+L3, path3, _ = SolverST(*pd).longest_st(s2, t3)
+S.append(f"""
+<section id="case2"><h2>تعریف حالت ۲</h2>
+<p class="cond">حالت ۲ (s مشخص، t نامشخص): خونه شروع {ltr("s")} از قبل داده شده. مسیر باید از همین خونه شروع بشه، ولی می‌تونه هر جایی تموم بشه.</p>
+<p><b>ورودی:</b> پنج عدد شکل T و خونه {ltr("s")}. &nbsp; <b>خروجی:</b> طول بلندترین مسیری که از {ltr("s")} شروع میشه، و خود مسیر.</p>
+<p>توی ربات جاروبرقی، {ltr("s")} جای ایستگاه شارژه: ربات همیشه از همون‌جا راه میفته.</p>
+<div class="example"><h4>مثال: همون {P(pd)}، با {ltr("s = (0, 0)")}</h4>
+<div class="figs">{svg(pd, path2, cap=f"بلندترین مسیر از گوشه چپ: <b>{L2}</b> خونه. توی حالت ۱ هم جواب ۴ بود، پس اینجا شروع از این خونه ضرری نداره.")}</div></div>
+<p class="todo">قانون‌های حالت ۲: در حال تکمیل. داده‌هاش توی دیتاست آماده‌ست ({ltr("12,275")} ردیف).</p>
+</section>""")
+S.append(f"""
+<section id="case3"><h2>تعریف حالت ۳</h2>
+<p class="cond">حالت ۳ (s مشخص، t مشخص): هم خونه شروع {ltr("s")} و هم خونه پایان {ltr("t")} از قبل داده شدن. مسیر باید از {ltr("s")} شروع و دقیقاً به {ltr("t")} ختم بشه.</p>
+<p><b>ورودی:</b> پنج عدد شکل T، خونه {ltr("s")} و خونه {ltr("t")}. &nbsp; <b>خروجی:</b> طول بلندترین مسیر از {ltr("s")} به {ltr("t")}، و خود مسیر.</p>
+<p>این همون مسئله‌ایه که مقاله‌های قبلی برای مستطیل و L و C حل کردن. توی ربات جاروبرقی یعنی ربات از ایستگاه شارژ راه میفته و باید جای مشخصی (مثلاً کنار در) کارش تموم بشه.</p>
+<div class="example"><h4>مثال: همون {P(pd)}، با {ltr("s = (0, 0)")} و {ltr("t = (0, 2)")}</h4>
+<div class="figs">{svg(pd, path3, cap=f"بلندترین مسیر از گوشه چپ به گوشه راست: فقط <b>{L3}</b> خونه. اگه مسیر بره توی ستون، دیگه نمی‌تونه برگرده و به {ltr('t')} برسه.")}</div>
+<p>می‌بینی که هر چی محدودیت بیشتر باشه، جواب ممکنه کوتاه‌تر بشه: توی حالت ۱ و ۲ جواب ۴ بود، اینجا ۳.</p></div>
+<p class="todo">قانون‌های حالت ۳: در حال تکمیل. داده‌هاش توی دیتاست آماده‌ست ({ltr("150,794")} ردیف، گراف‌ها تا ۴۵ رأس).</p>
+</section>""")
+
+# ---------- page order ----------
+import re as _re
+_byid = {_re.search(r'<section id="([^"]+)"', x).group(1): x for x in S}
+BANNER = lambda t, sub: f'<div class="part"><h2>{t}</h2><p>{sub}</p></div>'
+S = ([_byid[k] for k in ("setup", "color", "facts")]
+     + [BANNER("حالت ۱: s نامشخص، t نامشخص", "مسیر از هر جا شروع و به هر جا ختم میشه")]
+     + [_byid[k] for k in ("def", "rules", "rule1", "rule2", "rule3", "rule4", "tests")]
+     + [BANNER("حالت ۲: s مشخص، t نامشخص", "در حال تکمیل")]
+     + [_byid["case2"]]
+     + [BANNER("حالت ۳: s مشخص، t مشخص", "در حال تکمیل")]
+     + [_byid["case3"]])
 
 CSS = """
 :root{--bg:#fbfaf7;--card:#ffffff;--ink:#1d2330;--ink2:#5a6170;--line:#e4e1d9;--blk:#d6d9df;--wht:#ffffff;--grid:#9aa0aa;
@@ -319,17 +359,18 @@ figcaption{font-size:.88rem;color:var(--ink2);margin-top:4px;max-width:420px}
 .sq{display:inline-block;width:13px;height:13px;border:3px solid;vertical-align:middle;margin-left:6px} .sq.start{border-color:var(--start)} .sq.end{border-color:var(--end)}
 .x{color:var(--miss)} .warn{color:var(--warn)}
 .note{color:var(--ink2);font-size:.93rem}
+.part{margin:34px 0 6px;padding:14px 18px;border-radius:12px;background:var(--accent);color:#fff}.part h2{color:#fff;margin:0;font-size:1.45rem}.part p{margin:2px 0 0;opacity:.9}.todo{border:1px dashed var(--line);padding:8px 12px;border-radius:6px;color:var(--ink2)}
 @media (max-width:600px){section{padding:16px 14px} h1{font-size:1.4rem}}
 """
 
 html = f"""<!doctype html><html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>طولانی‌ترین مسیر در T فرد: حالت ۱</title>
+<title>طولانی‌ترین مسیر در T فرد</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
 <style>{CSS}</style></head><body><main>
 <h1>طولانی‌ترین مسیر در گراف T با اندازه فرد</h1>
-<p class="sub">حالت ۱: s نامشخص، t نامشخص. یعنی مسیر می‌تونه از هر خونه‌ای شروع بشه و به هر خونه‌ای ختم بشه.</p>
-<nav><a href="#def">حالت ۱ یعنی چی</a><a href="#setup">تعریف T</a><a href="#color">رنگ‌آمیزی</a><a href="#facts">دو واقعیت</a><a href="#rules">قانون کامل</a>
-<a href="#rule1">قانون ۱</a><a href="#rule2">قانون ۲</a><a href="#rule3">قانون ۳</a><a href="#rule4">قانون ۴</a><a href="#tests">تست‌ها</a></nav>
+<p class="sub">اول مفاهیم پایه، بعد سه حالت مسئله: حالت ۱ (s و t نامشخص)، حالت ۲ (s مشخص)، حالت ۳ (s و t مشخص).</p>
+<nav><a href="#setup">تعریف T</a><a href="#color">رنگ‌آمیزی</a><a href="#facts">دو واقعیت</a><a href="#def">حالت ۱</a><a href="#rules">قانون‌های حالت ۱</a>
+<a href="#rule1">قانون ۱</a><a href="#rule2">قانون ۲</a><a href="#rule3">قانون ۳</a><a href="#rule4">قانون ۴</a><a href="#tests">تست‌ها</a><a href="#case2">حالت ۲</a><a href="#case3">حالت ۳</a></nav>
 {''.join(S)}
 </main></body></html>"""
 
@@ -338,5 +379,5 @@ for p in [r1a, r1b, r2a, r2b, r2c, r3a, r3b, r3c, r4a, r4b, r4c, p0, pf]:
     assert (p[0]*p[1]+p[2]*p[3]) % 2 == 1, p
     assert len(longest_path(*p)) == longest_length(*p), p
     print(p, info(p), len(longest_path(*p)))
-open(__import__("os").path.join(__import__("os").path.dirname(__file__), "case1_s_free_t_free.html"), "w", encoding="utf-8").write(html)
+open(__import__("os").path.join(__import__("os").path.dirname(__file__), "longest_path_T.html"), "w", encoding="utf-8").write(html)
 print("ok", len(html))
